@@ -1,4 +1,4 @@
-const API = "https://backend-ayzt.onrender.com";
+const API = "https://backend-p2l2.onrender.com";
 
 document.getElementById("formulario").addEventListener("submit", async (e) => {
   e.preventDefault();
