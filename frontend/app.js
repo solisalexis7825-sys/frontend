@@ -1,4 +1,4 @@
-const API = "http://localhost:3000/api/multimedia";
+const API = "https://backend-ayzt.onrender.com";
 
 document.getElementById("formulario").addEventListener("submit", async (e) => {
   e.preventDefault();
