@@ -1,84 +1,240 @@
-const API_URL = "https://backend-p2l2.onrender.com/api/multimedia";
+let idEditar = null;
+const API =
+"https://galeria-multimedia.onrender.com/api/multimedia";
 
-// CARGAR AL INICIO
-document.addEventListener("DOMContentLoaded", () => {
-  cargarDatos();
+const formulario =
+document.getElementById(
+"formulario"
+);
+
+formulario.addEventListener(
+"submit",
+async(e)=>{
+
+e.preventDefault();
+
+const formData =
+new FormData();
+
+formData.append(
+"titulo",
+document.getElementById(
+"titulo"
+).value
+);
+
+formData.append(
+"descripcion",
+document.getElementById(
+"descripcion"
+).value
+);
+
+formData.append(
+"imagen",
+document.getElementById(
+"imagen"
+).files[0]
+);
+
+formData.append(
+"audio",
+document.getElementById(
+"audio"
+).files[0]
+);
+
+await fetch(API,{
+
+method:"POST",
+body:formData
+
 });
-// CREAR
-document.getElementById("formulario").addEventListener("submit", async (e) => {
-  e.preventDefault();
 
-  const formData = new FormData(e.target);
+cargar();
 
-  await fetch(API_URL, {
-    method: "POST",
-    body: formData
-  });
+formulario.reset();
 
-  e.target.reset();
-  cargarDatos();
 });
 
-// LEER
-async function cargarDatos() {
-  const res = await fetch(API_URL);
-  const data = await res.json();
+async function cargar(){
 
-  const galeria = document.getElementById("galeria");
-  galeria.innerHTML = "";
+const res =
+await fetch(API);
 
-  data.forEach(item => {
-    galeria.innerHTML += `
-      <div class="tarjeta">
+const datos =
+await res.json();
 
-        <input type="text" id="titulo-${item._id}" value="${item.titulo}">
-        <textarea id="descripcion-${item._id}">${item.descripcion || ""}</textarea>
+const lista =
+document.getElementById(
+"lista"
+);
 
-        <img src="https://backend-p2l2.onrender.com/${item.imagenUrl}" width="200">
+lista.innerHTML = "";
 
-        <audio controls>
-          <source src="https://backend-p2l2.onrender.com/${item.audioUrl}">
-        </audio>
+datos.forEach(d=>{
 
-        <br><br>
+lista.innerHTML += `
 
-        <input type="file" id="imagen-${item._id}">
-        <input type="file" id="audio-${item._id}">
+<div class="border p-4 mb-4">
 
-        <button onclick="editar('${item._id}')">💾 Guardar</button>
-        <button onclick="eliminar('${item._id}')">🗑️ Eliminar</button>
+<h2 class="font-bold text-xl">
+${d.titulo}
+</h2>
 
-      </div>
-    `;
-  });
+<p>
+${d.descripcion}
+</p>
+
+<br>
+
+<img
+src="${d.imagenUrl}"
+width="250">
+
+<br><br>
+
+<audio
+controls
+src="${d.audioUrl}">
+</audio>
+
+<br><br>
+
+<button
+onclick="editar(
+'${d._id}',
+'${d.titulo}',
+'${d.descripcion}'
+)"
+class="bg-yellow-500 text-white p-2 rounded">
+
+Editar
+
+</button>
+
+<button
+onclick="eliminar('${d._id}')"
+class="bg-red-600 text-white p-2 rounded">
+
+Eliminar
+
+</button>
+
+</div>
+
+`;
+
+});
+
 }
 
-// EDITAR
-async function editar(id) {
-  const formData = new FormData();
+async function eliminar(id){
 
-  formData.append("titulo", document.getElementById(`titulo-${id}`).value);
-  formData.append("descripcion", document.getElementById(`descripcion-${id}`).value);
+await fetch(
+API + "/" + id,
+{
+method:"DELETE"
+}
+);
 
-  const imagen = document.getElementById(`imagen-${id}`).files[0];
-  const audio = document.getElementById(`audio-${id}`).files[0];
+cargar();
 
-  if (imagen) formData.append("imagen", imagen);
-  if (audio) formData.append("audio", audio);
-
-  await fetch(`${API_URL}/${id}`, {
-    method: "PUT",
-    body: formData
-  });
-
-  cargarDatos();
 }
 
-// ELIMINAR
-async function eliminar(id) {
-  await fetch(`${API_URL}/${id}`, {
-    method: "DELETE"
-  });
+function editar(
+id,
+titulo,
+descripcion
+){
 
-  cargarDatos();
+idEditar = id;
+
+document.getElementById(
+"editTitulo"
+).value = titulo;
+
+document.getElementById(
+"editDescripcion"
+).value = descripcion;
+
+document.getElementById(
+"formEditar"
+).style.display = "block";
+
 }
+
+document.getElementById(
+"formEditar"
+).addEventListener(
+"submit",
+async(e)=>{
+
+e.preventDefault();
+
+const formData =
+new FormData();
+
+formData.append(
+"titulo",
+document.getElementById(
+"editTitulo"
+).value
+);
+
+formData.append(
+"descripcion",
+document.getElementById(
+"editDescripcion"
+).value
+);
+
+const imagen =
+document.getElementById(
+"editImagen"
+).files[0];
+
+if(imagen){
+
+formData.append(
+"imagen",
+imagen
+);
+
+}
+
+const audio =
+document.getElementById(
+"editAudio"
+).files[0];
+
+if(audio){
+
+formData.append(
+"audio",
+audio
+);
+
+}
+
+await fetch(
+API + "/" + idEditar,
+{
+method:"PUT",
+body:formData
+}
+);
+
+document.getElementById(
+"formEditar"
+).reset();
+
+document.getElementById(
+"formEditar"
+).style.display = "none";
+
+cargar();
+
+});
+
+cargar();
