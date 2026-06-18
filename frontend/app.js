@@ -1,240 +1,97 @@
-let idEditar = null;
-const API =
-"https://galeria-multimedia.onrender.com/api/multimedia";
+const API_URL = "https://backend-p2l2.onrender.com/api/multimedia";
 
-const formulario =
-document.getElementById(
-"formulario"
-);
+// CREAR REGISTRO
+document.getElementById("formulario").addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-formulario.addEventListener(
-"submit",
-async(e)=>{
+  const formData = new FormData(e.target);
 
-e.preventDefault();
+  await fetch(API_URL, {
+    method: "POST",
+    body: formData
+  });
 
-const formData =
-new FormData();
-
-formData.append(
-"titulo",
-document.getElementById(
-"titulo"
-).value
-);
-
-formData.append(
-"descripcion",
-document.getElementById(
-"descripcion"
-).value
-);
-
-formData.append(
-"imagen",
-document.getElementById(
-"imagen"
-).files[0]
-);
-
-formData.append(
-"audio",
-document.getElementById(
-"audio"
-).files[0]
-);
-
-await fetch(API,{
-
-method:"POST",
-body:formData
-
+  e.target.reset();
+  cargarDatos();
 });
 
-cargar();
+// CARGAR REGISTROS
+async function cargarDatos() {
+  const res = await fetch(API_URL);
+  const data = await res.json();
 
-formulario.reset();
+  const galeria = document.getElementById("galeria");
+  galeria.innerHTML = "";
 
-});
+  data.forEach(item => {
+    galeria.innerHTML += `
+      <div class="tarjeta">
 
-async function cargar(){
+        <input type="text" id="titulo-${item._id}" value="${item.titulo}">
+        <textarea id="descripcion-${item._id}">${item.descripcion || ""}</textarea>
 
-const res =
-await fetch(API);
+        <img class="imagen" src="https://backend-p2l2.onrender.com/${item.imagenUrl}">
 
-const datos =
-await res.json();
+        <br><br>
 
-const lista =
-document.getElementById(
-"lista"
-);
+        <label>📷 Nueva imagen:</label>
+        <input type="file" id="imagen-${item._id}" accept="image/*">
 
-lista.innerHTML = "";
+        <br><br>
 
-datos.forEach(d=>{
+        <audio controls>
+          <source src="https://backend-p2l2.onrender.com/${item.audioUrl}">
+        </audio>
 
-lista.innerHTML += `
+        <br><br>
 
-<div class="border p-4 mb-4">
+        <label>🎧 Nuevo audio:</label>
+        <input type="file" id="audio-${item._id}" accept="audio/*">
 
-<h2 class="font-bold text-xl">
-${d.titulo}
-</h2>
+        <br><br>
 
-<p>
-${d.descripcion}
-</p>
+        <button class="btn-editar" onclick="editar('${item._id}')">
+          💾 Guardar cambios
+        </button>
 
-<br>
+        <button class="btn-eliminar" onclick="eliminar('${item._id}')">
+          🗑️ Eliminar
+        </button>
 
-<img
-src="${d.imagenUrl}"
-width="250">
-
-<br><br>
-
-<audio
-controls
-src="${d.audioUrl}">
-</audio>
-
-<br><br>
-
-<button
-onclick="editar(
-'${d._id}',
-'${d.titulo}',
-'${d.descripcion}'
-)"
-class="bg-yellow-500 text-white p-2 rounded">
-
-Editar
-
-</button>
-
-<button
-onclick="eliminar('${d._id}')"
-class="bg-red-600 text-white p-2 rounded">
-
-Eliminar
-
-</button>
-
-</div>
-
-`;
-
-});
-
+      </div>
+    `;
+  });
 }
 
-async function eliminar(id){
+// EDITAR REGISTRO
+async function editar(id) {
+  const formData = new FormData();
 
-await fetch(
-API + "/" + id,
-{
-method:"DELETE"
-}
-);
+  formData.append("titulo", document.getElementById(`titulo-${id}`).value);
+  formData.append("descripcion", document.getElementById(`descripcion-${id}`).value);
 
-cargar();
+  const imagen = document.getElementById(`imagen-${id}`).files[0];
+  const audio = document.getElementById(`audio-${id}`).files[0];
 
-}
+  if (imagen) formData.append("imagen", imagen);
+  if (audio) formData.append("audio", audio);
 
-function editar(
-id,
-titulo,
-descripcion
-){
+  await fetch(`${API_URL}/${id}`, {
+    method: "PUT",
+    body: formData
+  });
 
-idEditar = id;
-
-document.getElementById(
-"editTitulo"
-).value = titulo;
-
-document.getElementById(
-"editDescripcion"
-).value = descripcion;
-
-document.getElementById(
-"formEditar"
-).style.display = "block";
-
+  alert("✅ Registro actualizado");
+  cargarDatos();
 }
 
-document.getElementById(
-"formEditar"
-).addEventListener(
-"submit",
-async(e)=>{
+// ELIMINAR REGISTRO
+async function eliminar(id) {
+  if (!confirm("¿Deseas eliminar este registro?")) return;
 
-e.preventDefault();
+  await fetch(`${API_URL}/${id}`, {
+    method: "DELETE"
+  });
 
-const formData =
-new FormData();
-
-formData.append(
-"titulo",
-document.getElementById(
-"editTitulo"
-).value
-);
-
-formData.append(
-"descripcion",
-document.getElementById(
-"editDescripcion"
-).value
-);
-
-const imagen =
-document.getElementById(
-"editImagen"
-).files[0];
-
-if(imagen){
-
-formData.append(
-"imagen",
-imagen
-);
-
+  cargarDatos();
 }
-
-const audio =
-document.getElementById(
-"editAudio"
-).files[0];
-
-if(audio){
-
-formData.append(
-"audio",
-audio
-);
-
-}
-
-await fetch(
-API + "/" + idEditar,
-{
-method:"PUT",
-body:formData
-}
-);
-
-document.getElementById(
-"formEditar"
-).reset();
-
-document.getElementById(
-"formEditar"
-).style.display = "none";
-
-cargar();
-
-});
-
-cargar();
