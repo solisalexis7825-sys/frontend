@@ -1,6 +1,6 @@
 const API_URL = "https://backend-p2l2.onrender.com/api/multimedia";
 
-// ENVIAR FORMULARIO (CREAR)
+// CREAR REGISTRO
 document.getElementById("formulario").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -15,7 +15,7 @@ document.getElementById("formulario").addEventListener("submit", async (e) => {
   cargarDatos();
 });
 
-// CARGAR DATOS
+// CARGAR REGISTROS
 async function cargarDatos() {
   const res = await fetch(API_URL);
   const data = await res.json();
@@ -63,7 +63,7 @@ async function cargarDatos() {
   });
 }
 
-// EDITAR
+// EDITAR REGISTRO
 async function editar(id) {
   const formData = new FormData();
 
@@ -85,7 +85,7 @@ async function editar(id) {
   cargarDatos();
 }
 
-// ELIMINAR
+// ELIMINAR REGISTRO
 async function eliminar(id) {
   if (!confirm("¿Deseas eliminar este registro?")) return;
 
