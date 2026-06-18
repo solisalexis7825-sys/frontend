@@ -1,6 +1,11 @@
 const API_URL = "https://backend-p2l2.onrender.com/api/multimedia";
 
-// CREAR REGISTRO
+// CARGAR AL INICIO
+document.addEventListener("DOMContentLoaded", () => {
+  cargarDatos();
+});
+
+// CREAR
 document.getElementById("formulario").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -15,7 +20,7 @@ document.getElementById("formulario").addEventListener("submit", async (e) => {
   cargarDatos();
 });
 
-// CARGAR REGISTROS
+// LEER
 async function cargarDatos() {
   const res = await fetch(API_URL);
   const data = await res.json();
@@ -30,14 +35,7 @@ async function cargarDatos() {
         <input type="text" id="titulo-${item._id}" value="${item.titulo}">
         <textarea id="descripcion-${item._id}">${item.descripcion || ""}</textarea>
 
-        <img class="imagen" src="https://backend-p2l2.onrender.com/${item.imagenUrl}">
-
-        <br><br>
-
-        <label>📷 Nueva imagen:</label>
-        <input type="file" id="imagen-${item._id}" accept="image/*">
-
-        <br><br>
+        <img src="https://backend-p2l2.onrender.com/${item.imagenUrl}" width="200">
 
         <audio controls>
           <source src="https://backend-p2l2.onrender.com/${item.audioUrl}">
@@ -45,25 +43,18 @@ async function cargarDatos() {
 
         <br><br>
 
-        <label>🎧 Nuevo audio:</label>
-        <input type="file" id="audio-${item._id}" accept="audio/*">
+        <input type="file" id="imagen-${item._id}">
+        <input type="file" id="audio-${item._id}">
 
-        <br><br>
-
-        <button class="btn-editar" onclick="editar('${item._id}')">
-          💾 Guardar cambios
-        </button>
-
-        <button class="btn-eliminar" onclick="eliminar('${item._id}')">
-          🗑️ Eliminar
-        </button>
+        <button onclick="editar('${item._id}')">💾 Guardar</button>
+        <button onclick="eliminar('${item._id}')">🗑️ Eliminar</button>
 
       </div>
     `;
   });
 }
 
-// EDITAR REGISTRO
+// EDITAR
 async function editar(id) {
   const formData = new FormData();
 
@@ -81,14 +72,11 @@ async function editar(id) {
     body: formData
   });
 
-  alert("✅ Registro actualizado");
   cargarDatos();
 }
 
-// ELIMINAR REGISTRO
+// ELIMINAR
 async function eliminar(id) {
-  if (!confirm("¿Deseas eliminar este registro?")) return;
-
   await fetch(`${API_URL}/${id}`, {
     method: "DELETE"
   });
