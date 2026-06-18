@@ -1,4 +1,4 @@
-const API_URL = "https://backend-p2l2.onrender.com/api/multimedia";
+const API_URL = "https://backend-p2l2.onrender.com";
 
 // CREAR REGISTRO
 document.getElementById("formulario").addEventListener("submit", async (e) => {
