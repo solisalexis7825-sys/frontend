@@ -1,5 +1,6 @@
 const API_URL = "https://backend-p2l2.onrender.com/api/multimedia";
 
+// ENVIAR FORMULARIO (CREAR)
 document.getElementById("formulario").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -14,22 +15,19 @@ document.getElementById("formulario").addEventListener("submit", async (e) => {
   cargarDatos();
 });
 
+// CARGAR DATOS
 async function cargarDatos() {
-
   const res = await fetch(API_URL);
   const data = await res.json();
 
   const galeria = document.getElementById("galeria");
-
   galeria.innerHTML = "";
 
   data.forEach(item => {
-
     galeria.innerHTML += `
       <div class="tarjeta">
 
         <input type="text" id="titulo-${item._id}" value="${item.titulo}">
-
         <textarea id="descripcion-${item._id}">${item.descripcion || ""}</textarea>
 
         <img class="imagen" src="https://backend-p2l2.onrender.com/${item.imagenUrl}">
@@ -65,8 +63,8 @@ async function cargarDatos() {
   });
 }
 
+// EDITAR
 async function editar(id) {
-
   const formData = new FormData();
 
   formData.append("titulo", document.getElementById(`titulo-${id}`).value);
@@ -87,8 +85,8 @@ async function editar(id) {
   cargarDatos();
 }
 
+// ELIMINAR
 async function eliminar(id) {
-
   if (!confirm("¿Deseas eliminar este registro?")) return;
 
   await fetch(`${API_URL}/${id}`, {
@@ -97,5 +95,3 @@ async function eliminar(id) {
 
   cargarDatos();
 }
-
-cargarDatos();
